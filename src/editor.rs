@@ -14,7 +14,7 @@ impl Editor {
             match read() {
                 Ok(Key(event)) => {
                     println!("{:?}\r", event);
-                    match (event.code) {
+                    match event.code {
                         Char(c) => {
                             if c == 'q' {
                                 break;

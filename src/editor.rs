@@ -1,7 +1,11 @@
+use std::fmt::format;
 use crossterm::event::{Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers, read};
 use std::io::Error;
 mod terminal;
 use terminal::{Position, Size, Terminal};
+
+const NAME: &str = env!("CARGO_PKG_NAME");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub struct Editor {
     should_quit: bool,
@@ -55,11 +59,15 @@ impl Editor {
         Terminal::execute()?;
         Ok(())
     }
+    
     fn draw_rows() -> Result<(), Error> {
         let Size { height, .. } = Terminal::size()?;
         for current_row in 0..height {
             Terminal::clear_line()?;
             Terminal::print("~")?;
+            if height / (current_row +1) == 3 {
+                Terminal::print(format!("\t{}", current_row).as_str())?;
+            }
             if current_row + 1 < height {
                 Terminal::print("\r\n")?;
             }

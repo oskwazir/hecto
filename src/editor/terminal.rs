@@ -1,12 +1,11 @@
-use core::fmt::Display;
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::style::Print;
-use crossterm::terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size};
-use crossterm::{Command, queue};
-use std::io::{Error, Write, stdout};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
+use crossterm::{queue, Command};
+use std::io::{stdout, Error, Write};
+use core::fmt::Display;
 
 #[derive(Copy, Clone)]
-
 pub struct Size {
     pub height: u16,
     pub width: u16,
@@ -16,7 +15,6 @@ pub struct Position {
     pub x: u16,
     pub y: u16,
 }
-
 pub struct Terminal;
 
 impl Terminal {
@@ -30,7 +28,6 @@ impl Terminal {
         Self::clear_screen()?;
         Self::move_cursor_to(Position { x: 0, y: 0 })?;
         Self::execute()?;
-
         Ok(())
     }
     pub fn clear_screen() -> Result<(), Error> {
@@ -61,14 +58,13 @@ impl Terminal {
         let (width, height) = size()?;
         Ok(Size { height, width })
     }
-
     pub fn execute() -> Result<(), Error> {
         stdout().flush()?;
         Ok(())
     }
 
-    pub fn queue_command<T: Command>(command: T) -> Result<(), Error> {
-        Self::queue_command(command)?;
+    fn queue_command<T:Command>(command: T) -> Result<(), Error> {
+        queue!(stdout(), command)?;
         Ok(())
     }
 }

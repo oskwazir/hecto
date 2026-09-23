@@ -1,5 +1,4 @@
-use std::fmt::format;
-use crossterm::event::{Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers, read};
+use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
 use std::io::Error;
 mod terminal;
 use terminal::{Position, Size, Terminal};
@@ -59,14 +58,29 @@ impl Editor {
         Terminal::execute()?;
         Ok(())
     }
-    
+    fn draw_welcome_message() -> Result<(), Error> {
+        let mut welcome_message = format!("{NAME} editor -- version {VERSION}");
+        let width = Terminal::size()?.width as usize;
+        let len = welcome_message.len();
+        let padding = (width - len) / 2;
+        let spaces = " ".repeat(padding - 1);
+        welcome_message = format!("~{spaces}{welcome_message}");
+        welcome_message.truncate(width);
+        Terminal::print(welcome_message)?;
+        Ok(())
+    }
+    fn draw_empty_row() -> Result<(), Error> {
+        Terminal::print("~")?;
+        Ok(())
+    }
     fn draw_rows() -> Result<(), Error> {
         let Size { height, .. } = Terminal::size()?;
         for current_row in 0..height {
             Terminal::clear_line()?;
-            Terminal::print("~")?;
-            if height / (current_row +1) == 3 {
-                Terminal::print(format!("\t{}", current_row).as_str())?;
+            if current_row == height / 3 {
+                Self::draw_welcome_message()?;
+            } else {
+                Self::draw_empty_row()?;
             }
             if current_row + 1 < height {
                 Terminal::print("\r\n")?;

@@ -1,4 +1,4 @@
-use crossterm::event::{Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers, read};
+use crossterm::event::{Event, Event::Key, KeyCode, KeyCode::Char, KeyEvent, KeyModifiers, read};
 use std::io::Error;
 mod terminal;
 use terminal::{Position, Size, Terminal};
@@ -8,11 +8,15 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub struct Editor {
     should_quit: bool,
+    location: Position,
 }
 
 impl Editor {
     pub const fn default() -> Self {
-        Self { should_quit: false }
+        Self {
+            should_quit: false,
+            location: Position { x: 0, y: 0 },
+        }
     }
     pub fn run(&mut self) {
         Terminal::initialize().unwrap();
@@ -32,7 +36,7 @@ impl Editor {
         }
         Ok(())
     }
-    fn evaluate_event(&mut self, event: &Event) {
+    fn evaluate_event(&mut self, event: &Event) -> Result<(), Error> {
         if let Key(KeyEvent {
             code, modifiers, ..
         }) = event
@@ -41,10 +45,43 @@ impl Editor {
                 Char('q') if *modifiers == KeyModifiers::CONTROL => {
                     self.should_quit = true;
                 }
+                KeyCode::Up
+                | KeyCode::Down
+                | KeyCode::Left
+                | KeyCode::Right
+                | KeyCode::PageUp
+                | KeyCode::PageDown
+                | KeyCode::Home
+                | KeyCode::End => {
+                    self.move_position(*code)?;
+                }
                 _ => (),
             }
         }
+        Ok(())
     }
+
+    fn move_position(&mut self, code: KeyCode) -> Result<(), Error> {
+        let Position { mut x, mut y } = self.location;
+        let Size { width, height } = Terminal::size()?;
+        let max_x = width.saturating_sub(1);
+        let max_y = height.saturating_sub(1);
+
+        match code {
+            KeyCode::Up => y = y.saturating_sub(1),
+            KeyCode::Down => y = y.saturating_add(1).min(max_y),
+            KeyCode::Left => x = x.saturating_sub(1),
+            KeyCode::Right => x = x.saturating_add(1).min(max_x),
+            KeyCode::PageUp => y = 0,
+            KeyCode::PageDown => y = max_y,
+            KeyCode::Home => x = 0,
+            KeyCode::End => x = max_x,
+            _ => (),
+        }
+        self.location = Position { x, y };
+        Ok(())
+    }
+
     fn refresh_screen(&self) -> Result<(), Error> {
         Terminal::hide_cursor()?;
         if self.should_quit {
@@ -52,7 +89,7 @@ impl Editor {
             Terminal::print("Goodbye.\r\n")?;
         } else {
             Self::draw_rows()?;
-            Terminal::move_cursor_to(Position { x: 0, y: 0 })?;
+            Terminal::move_cursor_to(self.location)?;
         }
         Terminal::show_cursor()?;
         Terminal::execute()?;

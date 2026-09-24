@@ -88,7 +88,7 @@ impl Editor {
             Terminal::clear_screen()?;
             Terminal::print("Goodbye.\r\n")?;
         } else {
-            Self::draw_rows()?;
+            self.draw_rows()?;
             Terminal::move_cursor_to(self.location)?;
         }
         Terminal::show_cursor()?;
@@ -110,7 +110,8 @@ impl Editor {
         Terminal::print("~")?;
         Ok(())
     }
-    fn draw_rows() -> Result<(), Error> {
+    fn draw_rows(&self) -> Result<(), Error> {
+        Terminal::move_cursor_to(Position { x: 0, y: 0 })?;
         let Size { height, .. } = Terminal::size()?;
         for current_row in 0..height {
             Terminal::clear_line()?;

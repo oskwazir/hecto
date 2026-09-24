@@ -1,4 +1,4 @@
-use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers, read};
 use std::io::Error;
 mod terminal;
 use terminal::{Position, Size, Terminal};

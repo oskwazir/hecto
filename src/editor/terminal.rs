@@ -1,9 +1,9 @@
+use core::fmt::Display;
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::style::Print;
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
-use crossterm::{queue, Command};
-use std::io::{stdout, Error, Write};
-use core::fmt::Display;
+use crossterm::terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size};
+use crossterm::{Command, queue};
+use std::io::{Error, Write, stdout};
 
 #[derive(Copy, Clone)]
 pub struct Size {
@@ -63,7 +63,7 @@ impl Terminal {
         Ok(())
     }
 
-    fn queue_command<T:Command>(command: T) -> Result<(), Error> {
+    fn queue_command<T: Command>(command: T) -> Result<(), Error> {
         queue!(stdout(), command)?;
         Ok(())
     }

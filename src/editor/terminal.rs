@@ -1,10 +1,10 @@
 use crossterm::cursor::{Hide, MoveTo, Show};
 use crossterm::style::Print;
-use crossterm::terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size};
-use crossterm::{Command, queue};
-use std::io::{Error, Write, stdout};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType};
+use crossterm::{queue, Command};
+use std::io::{stdout, Error, Write};
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct Size {
     pub height: usize,
     pub width: usize,
